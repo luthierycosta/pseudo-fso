@@ -1,9 +1,10 @@
+import memory_management as memory
+
 class Process:
     
-    pid_count = 1
+    pid_count = 0
     
     def __init__(self, offset, time, priority, execution_time, blocks, printer, scanner, modem, driver):
-        self.pid = Process.pid_count
         self.priority = priority
         self.execution_time = execution_time
         self.offset = offset
@@ -13,6 +14,7 @@ class Process:
         self.modem = modem
         self.driver = driver
         Process.pid_count += 1
+        self.pid = Process.pid_count
 
     def run(self):
         self.execution_time -= 1
@@ -25,24 +27,15 @@ files_input = open("input/files.txt")
 
 processes = []
 
-for process in processes_input:
-    info = process.split(", ")
+for p in processes_input:
+    processes.append(p.split(", "))
 
-    #riority = process_info[1]
+    #priority = process_info[1]
     #size = process_info[3]
     #if mem.spaceAvailable(priority, size):
     #    offset = mem.allocate(size)
     #    processes.append(Process(offset, *process_info))
-    processes.append(Process(0, *info))
-
-
-for process in processes:
-    print(process.pid)
-    print(process.priority)
-    print(process.execution_time)
-    print(process.offset)
-    print(process.blocks)
-    print("fim")
+    #processes.append(Process(0, *info))
 
 processes_input.close()
 files_input.close()
