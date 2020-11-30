@@ -1,30 +1,23 @@
-import memory_management as memory
+import process
+import memory_manager as memory
+import file_manager as fm
 
-class Process:
-    
-    pid_count = 0
-    
-    def __init__(self, offset, time, priority, execution_time, blocks, printer, scanner, modem, driver):
-        self.priority = priority
-        self.execution_time = execution_time
-        self.offset = offset
-        self.blocks = blocks
-        self.printer = printer
-        self.scanner = scanner
-        self.modem = modem
-        self.driver = driver
-        Process.pid_count += 1
-        self.pid = Process.pid_count
-
-    def run(self):
-        self.execution_time -= 1
-        if self.execution_time == 0:
-            print("Processo finalizado")
-
-
+# Abre arquivos de entrada
 processes_input = open("input/processes.txt")
 files_input = open("input/files.txt")
 
+# O primeiro número lido de files_input é o tamanho do disco
+drive_size = int(files_input.readline())
+fm.setDriveSize(drive_size)
+
+# O segundo é a quantidade n de arquivos a serem pré-alocados
+for i in range(files_input.readline()):
+    # Cada uma das n linhas seguintes é um arquivo
+    filename, first_block, length = files_input.readline().split(", ")
+    fm.insertFile(filename, length, first_block)
+
+# Inicializa lista de processos
+# (lista diferente da lista de execução de processos na CPU) 
 processes = []
 
 for p in processes_input:
@@ -37,5 +30,8 @@ for p in processes_input:
     #    processes.append(Process(offset, *process_info))
     #processes.append(Process(0, *info))
 
+fm.insertFile()
+
+# Fecha arquivos de entrada
 processes_input.close()
 files_input.close()
