@@ -1,44 +1,54 @@
 memory = ""
-files = []
+files = {}
 
-def setDriveSize(size):
+def setDriveSize(size: int):
     global memory
     memory = "0" * size
 
-def insertFile(filename, length, pos=None):
+def insertFile(filename: str, length: int, pos :int=None , pid :int=None):
     global memory, files
+
     if pos is None: 
         pos = memory.find("0"*length)
     
     if pos != -1:
         memory = memory[:pos] + "1"*length + memory[pos+length:]
-        files.append((filename, pos, length))
+        files[filename] = (pos, length, pid)
+        print(f"O processo {pid} criou o arquivo {filename}.")
+    else:
+        print(f"O processo {pid} não pôde criar o arquivo {filename} (sem espaço).")
         
     return pos
 
-def removeFile(filename):
+def removeFile(_filename: str, _pid: int, _priority: int):
     global memory, files
-    for file in files:
-        if filename == file[0]:
-            first_block = file[1]
-            length = file[2]
-            memory = memory[:first_block] + "0"*length + memory[first_block+length:]
-            del file
-            break
-
-def findFile(name):
-    for (filename, first_block, length) in files:
-        if filename == name:
-            return first_block
     
-    return -1
+    for i, (pos, length, pid) in files.items():
+        if i == _filename:
+            if _priority == 0 or _pid == pid:
+                memory = memory[:pos] + "0"*length + memory[pos+length:]
+                del files[i]
+                print(f"O processo {_pid} deletou o arquivo {_filename}.")
+                break
+            else:
+                print(f"O processo {_pid} não tem permissão para deletar o arquivo {_filename}.")
+        
 
-def getFileName(pos):
-    for (filename, first_block, length) in files:
-        if first_block <= pos < first_block+length:
-            return filename
+def findFile(name: str):
+    return files[name]
 
-    return ""
+def getFileName(_pos: int):
+    for i, (pos, length, _) in files.items():
+        if pos <= _pos < pos+length:
+            return i
+    
+    return "-"
+
+def printMemory():
+    print("\n\nMapa de alocação do disco:")
+    formattedString = " ".join([getFileName(i) for i in range(len(memory))])
+    print(f"{formattedString}\n\n")
+
 
 
 
