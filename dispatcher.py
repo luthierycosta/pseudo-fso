@@ -9,7 +9,7 @@ files_input = open("input/files.txt")
 
 print("Escolha a quantidade de tempo para rodar a simulação: ")
 max_time = int(input())
-10
+
 # Inicializa lista de processos
 # (lista diferente da lista de execução de processos na CPU) 
 processes = []
