@@ -1,6 +1,6 @@
 memory = [
     "0" * 64,
-    "0" * 960
+    "0" * 1024
 ]
 
 def allocate(priority, size):

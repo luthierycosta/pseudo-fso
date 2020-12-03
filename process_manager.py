@@ -14,6 +14,7 @@ class Process:
         self.modem = modem
         self.driver = driver
         self.pid = Process.pid_count
+        self.finished = False
         Process.pid_count += 1
 
     def get_processed(self):
@@ -38,6 +39,8 @@ class Process:
         return self.driver
     def get_pid(self):
         return self.pid
+    def isFinished(self):
+        return self.finished
     
     def set_processed(self, processed):
         self.processed = processed
@@ -61,6 +64,9 @@ class Process:
         self.driver = driver
     def set_pid(self, pid):
         self.pid = pid
+    def set_finished(self, finished):
+        self.finished = finished
+
 
     def printProcess(self):
         print('Processo alocado:')
@@ -78,4 +84,5 @@ class Process:
         self.execution_time -= 1
         print(f"Processo {self.pid} está executando")
         if self.execution_time == 0:
-            print("Processo finalizado")
+            print(f"Processo {self.pid} finalizado")
+            self.finished = True

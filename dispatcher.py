@@ -7,8 +7,6 @@ import queue_manager as qm
 processes_input = open("input/processes.txt")
 files_input = open("input/files.txt")
 
-print("Escolha a quantidade de tempo para rodar a simulação: ")
-max_time = int(input())
 
 # Inicializa lista de processos
 # (lista diferente da lista de execução de processos na CPU) 
@@ -23,8 +21,10 @@ for p in processes_input:
 
 
 current_time = 0
-while current_time <= max_time:
-    print(f"Tempo = {current_time}\n")
+
+while not all([p.isFinished() for p in processes]):
+
+    print(f"\n\n------ Tempo = {current_time} ------\n")
     for process in processes:
         if process.get_time() == current_time:
             offset = memory.allocate(process.get_priority(), process.get_blocks())
@@ -34,14 +34,19 @@ while current_time <= max_time:
                 qm.schedule(process)
             else:
                 print(f"O processo {process.get_pid()} não conseguiu ser criado (falta de memória).")
+                process.set_finished(True)
 
-    qm.run()
+    # Chama execução do escalonador, retornando o processo que foi executado no segundo atual
+    process = qm.run()
 
-    print("\n\n")
+    if process is not None and process.isFinished():
+        memory.free(process.get_priority(), process.get_offset(), process.get_blocks())
+
+    print("\n")
     current_time += 1
 
 
-
+print("\n---------------- Operações com arquivos ------------------\n\n")
 
 # O primeiro número lido de files_input é o tamanho do disco
 drive_size = int(files_input.readline())
@@ -57,6 +62,11 @@ for file in files_input:
     file = file.replace("\n","").split(", ")
     pid, operation, filename = [int(file[0]), int(file[1]), file[2]]
 
+    # Se o processo não existe, pula operação
+    if pid not in [p.get_pid() for p in processes]:
+        print(f"\nFalha: processo {pid} não existe\n")
+        continue
+
     priority = None
     for p in processes:
         if pid == p.get_pid():
@@ -69,7 +79,7 @@ for file in files_input:
         fm.removeFile(filename, pid, priority)
 
     #print(fm.memory)
-    print("\n\nArquivos alocados:\n",fm.files)
+    print(f"\nArquivos alocados:\n{fm.files}\n\n")
 
 fm.printMemory()
 

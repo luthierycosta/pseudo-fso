@@ -13,11 +13,12 @@ def schedule(p : pm.Process):
 def run():
     global i
 
+    p = None
     if len(queue[i]) > 0:
         p = queue[i].pop(0)
         p.run()
     
-        if p.get_execution_time() != 0:
+        if not p.isFinished():
             queue[i].append(p)
     
     if i == 0:
@@ -26,5 +27,7 @@ def run():
     else:
         if len(queue[0]) != 0:
             i = 0
+
+    return p
 
 
