@@ -1,49 +1,43 @@
-import process_manager as pm
+from time import sleep
+# Importa 
+from process_manager import Process
 import memory_manager as memory
 import file_manager as fm
 import queue_manager as qm
 
 # Abre arquivos de entrada
-processes_input = open("input/processes.txt")
-files_input = open("input/files.txt")
-
+processes_input = open("test/processes.txt")
+files_input = open("test/files.txt")
 
 # Inicializa lista de processos
-# (lista diferente da lista de execução de processos na CPU) 
-processes = []
-for p in processes_input:
-    
-    process_info = p.replace("\n","").split(", ")
-    process_info = [int(x) for x in process_info]
-    process = pm.Process(*process_info)
-
-    processes.append(process)
-
+# (lista diferente da lista de processos escalonados na CPU)
+processes = [Process(line) for line in processes_input]
 
 current_time = 0
 
-while not all([p.isFinished() for p in processes]):
+while not all([p.is_finished() for p in processes]):
 
-    print(f"\n\n------ Tempo = {current_time} ------\n")
+    print(f"\n\n----------- Tempo = {current_time} -----------\n")
     for process in processes:
-        if process.get_time() == current_time:
-            offset = memory.allocate(process.get_priority(), process.get_blocks())
+        if process.init_time == current_time:
+            offset = memory.allocate(process.priority, process.blocks)
             if offset != -1:
-                process.set_offset(offset)
-                process.printProcess()
+                process.offset = offset
+                process.print()
                 qm.schedule(process)
             else:
-                print(f"O processo {process.get_pid()} não conseguiu ser criado (falta de memória).")
-                process.set_finished(True)
+                print(f"O processo {process.pid} não conseguiu ser criado (falta de memória).")
+                process.finish()
 
     # Chama execução do escalonador, retornando o processo que foi executado no segundo atual
     process = qm.run()
 
-    if process is not None and process.isFinished():
-        memory.free(process.get_priority(), process.get_offset(), process.get_blocks())
+    if process is not None and process.is_finished():
+        memory.free(process.priority, process.offset, process.blocks)
 
     print("\n")
     current_time += 1
+    sleep(1)
 
 
 print("\n---------------- Operações com arquivos ------------------\n\n")
@@ -63,14 +57,14 @@ for file in files_input:
     pid, operation, filename = [int(file[0]), int(file[1]), file[2]]
 
     # Se o processo não existe, pula operação
-    if pid not in [p.get_pid() for p in processes]:
+    if pid not in [p.pid for p in processes]:
         print(f"\nFalha: processo {pid} não existe\n")
         continue
 
     priority = None
     for p in processes:
-        if pid == p.get_pid():
-            priority = p.get_priority()
+        if pid == p.pid:
+            priority = p.priority
 
     if operation == 0:
         length = int(file[3])

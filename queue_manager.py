@@ -7,7 +7,7 @@ i = 0
 def schedule(p : pm.Process):
     global queue
 
-    priority = 0 if p.get_priority() == 0 else 1
+    priority = 0 if p.priority == 0 else 1
     queue[priority].append(p)
 
 def run():
@@ -18,7 +18,7 @@ def run():
         p = queue[i].pop(0)
         p.run()
     
-        if not p.isFinished():
+        if not p.is_finished():
             queue[i].append(p)
     
     if i == 0:
