@@ -1,3 +1,5 @@
+""" Módulo principal do projeto """
+
 from time import sleep
 # Importa 
 from process_manager import Process
@@ -17,10 +19,10 @@ current_time = 0
 
 while not all([p.is_finished() for p in processes]):
 
-    print(f"\n\n----------- Tempo = {current_time} -----------\n")
+    print(f"\n\n\n----------- Tempo = {current_time} -----------\n")
     for process in processes:
         if process.init_time == current_time:
-            offset = memory.allocate(process.priority, process.blocks)
+            offset = memory.allocate(process)
             if offset != -1:
                 process.offset = offset
                 process.print()
@@ -33,9 +35,9 @@ while not all([p.is_finished() for p in processes]):
     process = qm.run()
 
     if process is not None and process.is_finished():
-        memory.free(process.priority, process.offset, process.blocks)
+        memory.free(process)
 
-    print("\n")
+    # print("\n")
     current_time += 1
     sleep(1)
 

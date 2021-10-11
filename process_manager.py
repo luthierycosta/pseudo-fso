@@ -9,7 +9,7 @@ class Process:
     pid_count = 0
 
     # Construtor que tem como argumento uma linha do arquivo de processos
-    def __init__(self, process):
+    def __init__(self, process: str):
         # Remove os \n da string, separa em array e converte cada numero para inteiro
         process = [int(x) for x in process.replace("\n","").split(", ")]
         self.init_time  = process[0]
@@ -41,7 +41,7 @@ class Process:
         """ Representa a execução (consumo) do processo por 1 unidade de tempo """
         print(f"Processo {self.pid} está executando")
         self.exec_time -= 1
-        sleep(1)
+        sleep(2)
         if self.exec_time == 0:
             print(f"Processo {self.pid} finalizado")
 
