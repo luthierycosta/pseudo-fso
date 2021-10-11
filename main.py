@@ -2,7 +2,7 @@
 
 from time import sleep
 # Importa 
-from process_manager import Process
+import process_manager as pm
 import memory_manager as memory
 import file_manager as fm
 import queue_manager as qm
@@ -13,10 +13,9 @@ files_input = open("test/files.txt")
 
 # Inicializa lista de processos
 # (lista diferente da lista de processos escalonados na CPU)
-processes = [Process(line) for line in processes_input]
+processes = [pm.Process(line) for line in processes_input]
 
 current_time = 0
-
 while not all([p.is_finished() for p in processes]):
 
     print(f"\n\n\n----------- Tempo = {current_time} -----------\n")
