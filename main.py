@@ -3,7 +3,7 @@
 from time import sleep
 # Importa 
 import process_manager as pm
-import memory_manager as memory
+from memory_manager import MemoryManager
 import file_manager as fm
 import queue_manager as qm
 
@@ -15,15 +15,17 @@ files_input = open("test/files.txt")
 # (lista diferente da lista de processos escalonados na CPU)
 processes = [pm.Process(line) for line in processes_input]
 
+memory = MemoryManager(64, 1024)
+
 current_time = 0
 while not all([p.is_finished() for p in processes]):
 
     print(f"\n\n\n----------- Tempo = {current_time} -----------\n")
     for process in processes:
         if process.init_time == current_time:
-            offset = memory.allocate(process)
-            if offset != -1:
-                process.offset = offset
+            address = memory.allocate(process)
+            if address != -1:
+                process.offset = address
                 process.print()
                 qm.schedule(process)
             else:
