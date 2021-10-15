@@ -4,6 +4,7 @@ from time import sleep
 # Importa 
 import process_manager as pm
 from memory_manager import MemoryManager
+#from file_manager import FileManager
 import file_manager as fm
 import queue_manager as qm
 
@@ -38,19 +39,20 @@ while not all([p.is_finished() for p in processes]):
     if process is not None and process.is_finished():
         memory.free(process)
 
-    # print("\n")
-    current_time += 1
     sleep(1)
+    current_time += 1
 
 
 print("\n---------------- Operações com arquivos ------------------\n\n")
 
 # O primeiro número lido de files_input é o tamanho do disco
+
 drive_size = int(files_input.readline())
+# fm = FileManager(size)
 fm.setDriveSize(drive_size)
 
 # O segundo é a quantidade n de arquivos a serem pré-alocados
-for i in range(int(files_input.readline())):
+for _ in range(int(files_input.readline())):
     # Cada uma das n linhas seguintes é um arquivo
     filename, first_block, length = files_input.readline().split(", ")
     fm.insertFile(filename, int(length), int(first_block))

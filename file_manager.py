@@ -1,5 +1,20 @@
+from memory_manager import Memory
+
+
 memory = ""
 files = {}
+
+class FileManager:
+
+    def __init__(self, size: int):
+        self.memory = Memory(size)
+        self.files = {}
+
+    def insert(self, length: int, pos: int=None , pid: int=None):
+        pos = pos or memory.find("0"*length)
+
+        # incompleto
+
 
 def setDriveSize(size: int):
     global memory
