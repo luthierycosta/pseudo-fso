@@ -8,8 +8,8 @@ class Process:
     # Contador global para atribuir PID aos processos criados
     pid_count = 0
 
-    # Construtor que tem como argumento uma linha do arquivo de processos
     def __init__(self, process: str):
+        """Construtor que tem como argumento uma linha do arquivo de processos"""
         # Remove os \n da string, separa em array e converte cada numero para inteiro
         process = [int(x) for x in process.replace("\n","").split(", ")]
         self.init_time  = process[0]
