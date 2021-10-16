@@ -41,7 +41,7 @@ class Process:
         """ Representa a execução (consumo) do processo por 1 unidade de tempo """
         print(f"Processo {self.pid} está executando")
         self.exec_time -= 1
-        sleep(2)
+        sleep(1)
         if self.exec_time == 0:
             print(f"Processo {self.pid} finalizado")
 

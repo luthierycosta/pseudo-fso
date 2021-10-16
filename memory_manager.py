@@ -3,17 +3,18 @@ from process_manager import Process
 class Memory:
 
     def __init__(self, size: int):
-        self.memory = "0" * size
+        self.memory = '0'*size
+        self.size = size
 
-    def allocate(self, size: int):
-        first_block = self.memory.find("0"*size)
-        if first_block != -1:
-            self.memory = self.memory.replace("0"*size, "1"*size, 1)
+    def allocate(self, start: int, size: int):
+        address = self.memory.find('0'*size, start)
+        if address != -1:
+            self.memory = self.memory[:address] + '1'*size + self.memory[address+size:]
 
-        return first_block
+        return address
 
-    def free(self, begin: int, size: int):
-        self.memory = self.memory[:begin] + "0"*size + self.memory[begin+size:]
+    def free(self, start: int, size: int):
+        self.memory = self.memory[:start] + '0'*size + self.memory[start+size:]
 
 class MemoryManager:
 
@@ -22,7 +23,7 @@ class MemoryManager:
 
     def allocate(self, p: Process):
         i = 0 if p.priority == 0 else 1
-        return self.memory[i].allocate(p.blocks)
+        return self.memory[i].allocate(0, p.blocks)
 
     def free(self, p: Process):
         i = 0 if p.priority == 0 else 1

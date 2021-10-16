@@ -1,75 +1,43 @@
 from memory_manager import Memory
 
-
-memory = ""
-files = {}
-
 class FileManager:
 
     def __init__(self, size: int):
         self.memory = Memory(size)
         self.files = {}
 
-    def insert(self, length: int, pos: int=None , pid: int=None):
-        pos = pos or memory.find("0"*length)
+    def insert(self, filename: str, length: int, pos: int=0 , pid: int=None):
+        address = self.memory.allocate(pos, length)
+        if address != -1:
+            self.files[filename] = (address, length, pid)
+            block_list = list(range(address, address+length))
+            print(f"O processo {pid} criou o arquivo {filename} - blocos {block_list}.")
+        else:
+            print(f"O processo {pid} não pode criar o arquivo {filename} (falta de espaço).")
+        return address
 
-        # incompleto
+    def remove(self, filename: str, pid: int, priority: int):
+        for i, (address, length, _pid) in self.files.items():
+            if i == filename:
+                if priority == 0 or _pid == pid:
+                    self.memory.free(address, length)
+                    del self.files[i]
+                    print(f"O processo {pid} deletou o arquivo {filename}.")
+                    return
+                else:
+                    print(f"O processo {pid} não tem permissão para deletar o arquivo {filename}.")
+                    return
+        print(f"O processo {pid} não pode deletar o arquivo {filename} porque ele não existe.")
 
-
-def setDriveSize(size: int):
-    global memory
-    memory = "0" * size
-
-def insertFile(filename: str, length: int, pos :int=None , pid :int=None):
-    global memory, files
-
-    if pos is None: 
-        pos = memory.find("0"*length)
+    def find_file(self, filename: str):
+        return self.files[filename]
     
-    if pos != -1:
-        memory = memory[:pos] + "1"*length + memory[pos+length:]
-        files[filename] = (pos, length, pid)
-        print(f"O processo {pid} criou o arquivo {filename}.")
-    else:
-        print(f"O processo {pid} não pôde criar o arquivo {filename} (sem espaço).")
-        
-    return pos
-
-def removeFile(_filename: str, _pid: int, _priority: int):
-    global memory, files
+    def get_file_at(self, _pos: int):
+        for i, (pos, length, _) in self.files.items():
+            if pos <= _pos < pos+length:
+                return i
+        return '-'
     
-    for i, (pos, length, pid) in files.items():
-        if i == _filename:
-            if _priority == 0 or _pid == pid:
-                memory = memory[:pos] + "0"*length + memory[pos+length:]
-                del files[i]
-                print(f"O processo {_pid} deletou o arquivo {_filename}.")
-                break
-            else:
-                print(f"O processo {_pid} não tem permissão para deletar o arquivo {_filename}.")
+    def print(self):
+        return " ".join([self.get_file_at(i) for i in range(self.memory.size)])
         
-
-def findFile(name: str):
-    return files[name]
-
-def getFileName(_pos: int):
-    for i, (pos, length, _) in files.items():
-        if pos <= _pos < pos+length:
-            return i
-    
-    return "-"
-
-def printMemory():
-    print("\n\nMapa de alocação do disco:")
-    formattedString = " ".join([getFileName(i) for i in range(len(memory))])
-    print(f"{formattedString}\n\n")
-
-
-
-
-        
-
-
-
-
-

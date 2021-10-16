@@ -2,10 +2,9 @@
 
 from time import sleep
 # Importa 
-import process_manager as pm
+from process_manager import Process
 from memory_manager import MemoryManager
-#from file_manager import FileManager
-import file_manager as fm
+from file_manager import FileManager
 import queue_manager as qm
 
 # Abre arquivos de entrada
@@ -14,9 +13,9 @@ files_input = open("test/files.txt")
 
 # Inicializa lista de processos
 # (lista diferente da lista de processos escalonados na CPU)
-processes = [pm.Process(line) for line in processes_input]
+processes = [Process(line) for line in processes_input]
 
-memory = MemoryManager(64, 1024)
+memory = MemoryManager(64, 960)
 
 current_time = 0
 while not all([p.is_finished() for p in processes]):
@@ -39,25 +38,26 @@ while not all([p.is_finished() for p in processes]):
     if process is not None and process.is_finished():
         memory.free(process)
 
-    sleep(1)
+    sleep(0.5)
     current_time += 1
 
 
 print("\n---------------- Operações com arquivos ------------------\n\n")
 
 # O primeiro número lido de files_input é o tamanho do disco
-
 drive_size = int(files_input.readline())
-# fm = FileManager(size)
-fm.setDriveSize(drive_size)
+# Inicializa disco
+fm = FileManager(drive_size)
 
-# O segundo é a quantidade n de arquivos a serem pré-alocados
+# O segundo é uma quantidade n de arquivos pré-gravados no sistema
 for _ in range(int(files_input.readline())):
     # Cada uma das n linhas seguintes é um arquivo
     filename, first_block, length = files_input.readline().split(", ")
-    fm.insertFile(filename, int(length), int(first_block))
+    fm.insert(filename, int(length), int(first_block))
 
+# As linhas restantes são arquivos criados pelos processos
 for file in files_input:
+    # Manipula string para obter o array de dados
     file = file.replace("\n","").split(", ")
     pid, operation, filename = [int(file[0]), int(file[1]), file[2]]
 
@@ -66,21 +66,23 @@ for file in files_input:
         print(f"\nFalha: processo {pid} não existe\n")
         continue
 
-    priority = None
-    for p in processes:
-        if pid == p.pid:
-            priority = p.priority
-
+    # operação de inserir arquivo
     if operation == 0:
         length = int(file[3])
-        fm.insertFile(filename, length, None, pid)
+        # tenta criar no 1º espaço, segundo o algoritmo first-fit (logo, busca a partir do bloco 0)
+        fm.insert(filename, length, 0, pid)
+        
+    # operação de remover arquivo
     elif operation == 1:
-        fm.removeFile(filename, pid, priority)
+        # na operação de remover, é preciso obter a prioridade do processo lido
+        for p in processes:
+            if pid == p.pid:
+                priority = p.priority
+        fm.remove(filename, pid, priority)
 
-    #print(fm.memory)
     print(f"\nArquivos alocados:\n{fm.files}\n\n")
 
-fm.printMemory()
+print(f"\nMapa de ocupação do disco:\n{fm.print()}\n\n")
 
 # Fecha arquivos de entrada
 processes_input.close()
