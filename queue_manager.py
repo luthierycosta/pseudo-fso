@@ -12,7 +12,25 @@ class Queue:
     def run(self):
         process = self.buffer.pop(0)
         process.run()
+        if process.isFinished():
+            self.quantum = self.max_quantum
+        else:
+            self.buffer.insert(0, process)
+            self.quantum -= 1
+        return process
 
+class QueueManager:
+    def __init__(self, n: int):
+        self.queues = [Queue(n) for _ in range(4)]
+
+    def schedule(self,p: Process):
+        self.queues[p.priority].insert(p)
+
+    def run(self):
+        for queue in self.queues:
+            if queue.buffer:
+                return queue.run()
+        return None
 
 queue = [[],[]]
 
