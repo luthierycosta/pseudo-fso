@@ -17,17 +17,16 @@ class FileManager:
         return address
 
     def remove(self, filename: str, pid: int, priority: int):
-        for i, (address, length, _pid) in self.files.items():
-            if i == filename:
-                if priority == 0 or _pid == pid:
-                    self.memory.free(address, length)
-                    del self.files[i]
-                    print(f"O processo {pid} deletou o arquivo {filename}.")
-                    return
-                else:
-                    print(f"O processo {pid} não tem permissão para deletar o arquivo {filename}.")
-                    return
-        print(f"O processo {pid} não pode deletar o arquivo {filename} porque ele não existe.")
+        try:
+            address, length, _pid = self.files[filename]
+            if priority == 0 or _pid == pid:
+                self.memory.free(address, length)
+                del self.files[filename]
+                print(f"O processo {pid} deletou o arquivo {filename}.")
+            else:
+                print(f"O processo {pid} não tem permissão para deletar o arquivo {filename}.")         
+        except KeyError:
+            print(f"O processo {pid} não pode deletar o arquivo {filename} porque ele não existe.")
 
     def find_file(self, filename: str):
         return self.files[filename]
