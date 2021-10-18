@@ -1,10 +1,24 @@
-import process_manager as pm
+from process_manager import Process
+
+class Queue:
+    def __init__(self, n: int):
+        self.buffer = []
+        self.max_quantum = n
+        self.quantum = self.max_quantum
+
+    def insert(self, p: Process):
+        self.buffer.append(p)
+
+    def run(self):
+        process = self.buffer.pop(0)
+        process.run()
+
 
 queue = [[],[]]
 
 i = 0
 
-def schedule(p : pm.Process):
+def schedule(p : Process):
     global queue
 
     priority = 0 if p.priority == 0 else 1
