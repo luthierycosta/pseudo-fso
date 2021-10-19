@@ -14,6 +14,7 @@ class Process:
         process = [int(x) for x in process.replace("\n","").split(", ")]
         self.init_time  = process[0]
         self.priority   = process[1]
+        self.total_time = process[2]
         self.exec_time  = process[2]
         self.blocks     = process[3]
         self.printer    = process[4]
@@ -39,11 +40,11 @@ class Process:
 
     def run(self):
         """ Representa a execução (consumo) do processo por 1 unidade de tempo """
-        print(f"Processo {self.pid} está executando")
+        print(f"Processo {self.pid} - instrução {self.total_time - self.exec_time + 1}")
         self.exec_time -= 1
         sleep(1)
         if self.exec_time == 0:
-            print(f"Processo {self.pid} finalizado")
+            print(f"Processo {self.pid} - finalizado")
 
     def is_finished(self):
         """ Retorna se o processo encerrou sua execução. """

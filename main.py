@@ -5,7 +5,7 @@ from time import sleep
 from process_manager import Process
 from memory_manager import MemoryManager
 from file_manager import FileManager
-import queue_manager as qm
+from queue_manager import QueueManager
 
 # Abre arquivos de entrada
 processes_input = open("test/processes.txt")
@@ -16,11 +16,12 @@ files_input = open("test/files.txt")
 processes = [Process(line) for line in processes_input]
 
 memory = MemoryManager(64, 960)
+qm = QueueManager()
 
 current_time = 0
 while not all([p.is_finished() for p in processes]):
 
-    print(f"\n\n\n----------- Tempo = {current_time} -----------\n")
+    print(f"\n\n\n---------------- Tempo = {current_time} ----------------\n")
     for process in processes:
         if process.init_time == current_time:
             address = memory.allocate(process)
@@ -33,6 +34,7 @@ while not all([p.is_finished() for p in processes]):
                 process.finish()
 
     # Chama execução do escalonador, retornando o processo que foi executado no segundo atual
+    print(qm.print())
     process = qm.run()
 
     if process is not None and process.is_finished():
@@ -42,7 +44,7 @@ while not all([p.is_finished() for p in processes]):
     current_time += 1
 
 
-print("\n---------------- Operações com arquivos ------------------\n\n")
+print("\n--------------------- Operações com arquivos -----------------------\n\n")
 
 # O primeiro número lido de files_input é o tamanho do disco
 drive_size = int(files_input.readline())

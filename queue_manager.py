@@ -1,37 +1,6 @@
 from process_manager import Process
 
-class Queue:
-    def __init__(self, n: int):
-        self.buffer = []
-        self.max_quantum = n
-        self.quantum = self.max_quantum
-
-    def insert(self, p: Process):
-        self.buffer.append(p)
-
-    def run(self):
-        process = self.buffer.pop(0)
-        process.run()
-        if process.isFinished():
-            self.quantum = self.max_quantum
-        else:
-            self.buffer.insert(0, process)
-            self.quantum -= 1
-        return process
-
-class QueueManager:
-    def __init__(self, n: int):
-        self.queues = [Queue(n) for _ in range(4)]
-
-    def schedule(self,p: Process):
-        self.queues[p.priority].insert(p)
-
-    def run(self):
-        for queue in self.queues:
-            if queue.buffer:
-                return queue.run()
-        return None
-
+""" 
 queue = [[],[]]
 
 i = 0
@@ -61,5 +30,41 @@ def run():
             i = 0
 
     return p
+"""
 
+class QueueManager:
+    def __init__(self):
+        self.queues = [[],[],[],[]]
+        self.count = 0
 
+    def schedule(self, process: Process):
+        self.count += 1
+        if self.count > 1000:
+            print("Limite máximo de processos atingido")
+        i = min(process.priority, 3)
+        self.queues[i].append(process)
+
+    def run(self):
+        for (i, queue) in enumerate(self.queues):
+            if queue:
+                process = queue.pop(0)
+                process.run()
+                if not process.is_finished():
+                    if i == 0:
+                        queue.insert(0, process)
+                    elif not queue:
+                        queue.append(process)
+                    else:
+                        next_i = min(i+1, len(self.queues)-1)
+                        self.queues[next_i].append(process)
+                return process
+        return None
+
+    def print(self):
+        string = "Filas:\n"
+        for queue in self.queues:
+            string += '['
+            for process in queue:
+                string += str(process.pid) + ' '
+            string += ']\n'
+        return string
