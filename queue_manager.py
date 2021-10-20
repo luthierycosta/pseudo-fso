@@ -1,7 +1,8 @@
+""" Implementa a abstração de gerenciamento de filas, ou escalonador de processos, do pseudo-SO."""
 from process_manager import Process
 
 class QueueManager:
-    """ Gerenciador de filas, ou escalonador, é a entidade responsável por alocar
+    """ O Gerenciador de filas é a entidade responsável por alocar
         os processos prontos na CPU da forma mais eficiente.
         O algoritmo usado é o de múltiplas filas de prioridade,
         onde a fila mais prioritária é não-preemptiva e as outras são preemptivas.
@@ -27,15 +28,15 @@ class QueueManager:
             retornando o processo que foi executado, se houver.
         """
         # percorre todas as filas, onde i é o índice da fila
-        for (i, queue) in enumerate(self.queues):   
+        for (i, queue) in enumerate(self.queues):
             # executa a primeira fila encontrada que possua processos
             if queue:
                 # retira primeiro processo da fila e o executa
-                proc = queue.pop(0)                 
+                proc = queue.pop(0)
                 proc.run()
                 # o processo precisa ser reinserido nas filas, a menos que tenha finalizado
-                if not proc.is_finished():    
-                    # se for processo da fila prioritária, volta pra frente da fila 0 (sem preemptar)
+                if not proc.is_finished():
+                    # se for processo da fila prioritária, volta pra frente da fila (sem preemptar)
                     if i == 0:
                         queue.insert(0, proc)
                     # se for de outra fila, mas não há outros processos nela, reinsere na mesma
