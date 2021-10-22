@@ -19,6 +19,7 @@ class QueueManager:
         self.count += 1
         if self.count > 1000:
             print("Limite máximo de processos atingido")
+            return
         i = min(proc.priority, 3)
         self.queues[i].append(proc)
 
@@ -44,7 +45,7 @@ class QueueManager:
                         queue.append(proc)
                     # caso haja processos na fila atual, o processo irá para o fim da fila de baixo
                     else:
-                        next_i = min(i+1, len(self.queues)-1)
+                        next_i = min(i+1, 3)
                         self.queues[next_i].append(proc)
                 return proc
         # se percorreu todas as filas e nenhum processo foi encontrado, retorna None
