@@ -25,6 +25,13 @@ class Process:
         self.pid        = Process.pid_count
         Process.pid_count += 1
 
+    def start(self, address: int):
+        """ Simboliza a inicialização de fato do processo, quando ele é alocado na memória
+            e está pronto para ser escalonado na CPU.
+        """
+        self.offset = address
+        self.print()
+
     def print(self):
         """ Imprime os atributos do processo. """
         print('Processo alocado:')

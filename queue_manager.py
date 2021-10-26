@@ -9,6 +9,7 @@ class QueueManager:
     """
     def __init__(self):
         self.queues = [[],[],[],[]]     # inicializa as 4 filas, ordenadas por prioridade
+        self.blocked = []
         self.count = 0                  # contador de processos, que não pode ultrapassar 1000
 
     def schedule(self, proc: Process):
@@ -51,9 +52,17 @@ class QueueManager:
         # se percorreu todas as filas e nenhum processo foi encontrado, retorna None
         return None
 
+    def block(self, proc: Process):
+        """ Insere processo na lista de bloqueio, pois os recursos não conseguiram ser alocados."""
+        self.blocked.append(proc)
+
+    def signal(self):
+        pass
+        # Incompleto
+
     def print(self):
         """ Função que imprime a configuração atual das filas de processos,
-            representando cada processo com seu PID.
+            representando cada processo pelo seu PID.
         """
         string = "Filas:\n"
         for queue in self.queues:

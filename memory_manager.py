@@ -29,7 +29,8 @@ class Memory:
 
 class MemoryManager:
     """ Representa o módulo de gerência de memória do SO, que é responsável por alocar processos
-        usando várias partições de memória simples, ou seja, objetos da classe Memory.
+        usando várias partições de memória simples, ou seja, objetos da classe Memory,
+        sem uso de uma abstração de memória virtual.
     """
     def __init__(self, *partitions: int):
         self.memory = [Memory(n) for n in partitions]
