@@ -54,10 +54,3 @@ class IOManager:
                 print(f"O Processo {proc.pid} não conseguiu ser criado (recursos insuficientes).")
                 return True
         return False
-
-
-# Teste temporário
-io = IOManager()
-io.open(Process("1, 1, 1, 1, 1, 0, 0, 3"))
-io.open(Process("1, 1, 1, 1, 1, 0, 1, 2"))
-print(io.resources)
