@@ -6,7 +6,6 @@ from process_manager import Process
 from memory_manager import MemoryManager
 from file_manager import FileManager
 from queue_manager import QueueManager
-from io_manager import IO
 # Abre arquivos de entrada
 processes_input = open("test/processes.txt")
 files_input = open("test/files.txt")
@@ -17,7 +16,6 @@ processes = [Process(line) for line in processes_input]
 
 memory = MemoryManager(64, 960)
 qm = QueueManager()
-io = IO()
 
 current_time = 0
 while not all([p.is_finished() for p in processes]):
@@ -28,12 +26,7 @@ while not all([p.is_finished() for p in processes]):
             address = memory.allocate(process)
             if address != -1:
                 process.start(address)
-                if io.open(process):
-                    qm.schedule(process)
-                elif io.overflow(process):
-                    process.finish()
-                else:
-                    qm.block(process)
+                qm.schedule(process)
             else:
                 print(f"O processo {process.pid} não conseguiu ser criado (falta de memória).")
                 process.finish()
@@ -44,7 +37,6 @@ while not all([p.is_finished() for p in processes]):
 
     if process and process.is_finished():
         memory.free(process)
-        io.close(process)
 
     sleep(0.5)
     current_time += 1

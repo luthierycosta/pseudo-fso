@@ -1,5 +1,8 @@
 """ Implementa a abstração de gerenciamento de filas, ou escalonador de processos, do pseudo-SO."""
 from process_manager import Process
+from io_manager import IOManager
+
+io = IOManager()
 
 class QueueManager:
     """ O Gerenciador de filas é a entidade responsável por alocar
@@ -9,20 +12,32 @@ class QueueManager:
     """
     def __init__(self):
         self.queues = [[],[],[],[]]     # inicializa as 4 filas, ordenadas por prioridade
-        self.blocked = []
-        self.count = 0                  # contador de processos, que não pode ultrapassar 1000
+        self.blocked = []               # inicializa lista de processos bloqueados
+
+    def len(self):
+        """ Retorna o tamanho somado de todas as filas de execução."""
+        return sum([len(q) for q in self.queues])
 
     def schedule(self, proc: Process):
         """ Escala um processo para ser executado na CPU, após sua criação.
             Coloca o processo na fila correspondente à sua prioridade.
             Caso a prioridade seja maior que 3, ele entrará na fila 3.
         """
-        self.count += 1
-        if self.count > 1000:
-            print("Limite máximo de processos atingido")
-            return
-        i = min(proc.priority, 3)
-        self.queues[i].append(proc)
+        # Testa se consegue alocar os recursos do processo. Se sim, insere na fila de execução
+        if io.open(proc):
+            # Se o limite máximo de processos foi atingido, não insere
+            if self.len() >= 1000:
+                print("Limite máximo de processos atingido")
+            # Caso contrário, insere na fila correspondente à sua prioridade
+            else:
+                i = min(proc.priority, 3)
+                self.queues[i].append(proc)
+        # Se o processo pede mais recursos que o disponível globalmente, aborta-o
+        elif io.overflow(proc):
+            proc.finish()
+        # Caso contrário, insere na fila de bloqueio pois os recursos serão alocados futuramente
+        else:
+            self.blocked.append(proc)
 
     def run(self):
         """ Executa um dado processo por uma unidade de tempo,
@@ -36,8 +51,12 @@ class QueueManager:
                 # retira primeiro processo da fila e o executa
                 proc = queue.pop(0)
                 proc.run()
-                # o processo precisa ser reinserido nas filas, a menos que tenha finalizado
-                if not proc.is_finished():
+                # caso o processo tenha finalizado, libera recursos e sinaliza processos bloqueados
+                if proc.is_finished():
+                    io.close(proc)
+                    self.signal()
+                # caso contrário, reinsere o processo nas filas
+                else:
                     # se for processo da fila prioritária, volta pra frente da fila (sem preemptar)
                     if i == 0:
                         queue.insert(0, proc)
@@ -52,13 +71,15 @@ class QueueManager:
         # se percorreu todas as filas e nenhum processo foi encontrado, retorna None
         return None
 
-    def block(self, proc: Process):
-        """ Insere processo na lista de bloqueio, pois os recursos não conseguiram ser alocados."""
-        self.blocked.append(proc)
-
     def signal(self):
-        pass
-        # Incompleto
+        """ Passa pelos processos bloqueados tentando reinserir um por um nas filas de execução."""
+        current_blocked = list(self.blocked)
+        # navega pela lista copiada, pois a lista original será alterada ao longo da execução
+        for _ in range(len(current_blocked)):
+            # retira elemento da lista original
+            proc = self.blocked.pop(0)
+            # tenta escaloná-lo; pode ir pra execução ou voltar à lista de bloqueados
+            self.schedule(proc)
 
     def print(self):
         """ Função que imprime a configuração atual das filas de processos,

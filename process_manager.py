@@ -50,7 +50,7 @@ class Process:
         print(f"Processo {self.pid} - instrução {self.total_time - self.exec_time + 1}")
         self.exec_time -= 1
         sleep(1)
-        if self.exec_time == 0:
+        if self.is_finished():
             print(f"Processo {self.pid} - finalizado")
 
     def is_finished(self):
