@@ -21,16 +21,25 @@ class Process:
         self.scanner    = process[5]
         self.modem      = process[6]
         self.driver     = process[7]
-        self.offset     = None      # Informação atribuida depois pelo gerenciador de memória
+        self.offset     = None      # Informação atribuida depois pelo star
         self.pid        = Process.pid_count
         Process.pid_count += 1
 
     def start(self, address: int):
-        """ Simboliza a inicialização de fato do processo, quando ele é alocado na memória
+        """ Simboliza a inicialização do processo, quando ele é alocado na memória
             e está pronto para ser escalonado na CPU.
+            Armazena o endereço de memória (offset) e manda imprimir processo.
         """
         self.offset = address
         self.print()
+
+    def finish(self):
+        """ Encerra o processo no caso de ele não ser escalonado."""
+        self.exec_time = 0
+
+    def is_finished(self):
+        """ Retorna se o processo encerrou sua execução. """
+        return self.exec_time == 0
 
     def print(self):
         """ Imprime os atributos do processo. """
@@ -52,11 +61,3 @@ class Process:
         sleep(1)
         if self.is_finished():
             print(f"Processo {self.pid} - finalizado")
-
-    def is_finished(self):
-        """ Retorna se o processo encerrou sua execução. """
-        return self.exec_time == 0
-
-    def finish(self):
-        """ Encerra o processo no caso de ele não ser escalonado."""
-        self.exec_time = 0

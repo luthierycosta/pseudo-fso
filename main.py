@@ -1,28 +1,32 @@
-""" Módulo principal do projeto """
-
+""" Módulo principal do projeto. É o arquivo a ser executado. """
+# Importa função sleep para atrasar execução e a deixar entendível
 from time import sleep
-# Importa 
+# Importa restante dos módulos, com exceção do io_manager
 from process_manager import Process
 from memory_manager import MemoryManager
 from file_manager import FileManager
 from queue_manager import QueueManager
-# Abre arquivos de entrada
-processes_input = open("test/processes.txt")
-files_input = open("test/files.txt")
 
-# Inicializa lista de processos
-# (lista diferente da lista de processos escalonados na CPU)
-processes = [Process(line) for line in processes_input]
-
+# Inicializa memória e escalonador
 memory = MemoryManager(64, 960)
 qm = QueueManager()
 
-current_time = 0
-while not all([p.is_finished() for p in processes]):
+# Abre arquivos de entrada de processos e arquivos
+processes_input = open("test/processes.txt")
+files_input = open("test/files.txt")
 
-    print(f"\n\n\n---------------- Tempo = {current_time} ----------------\n")
+# Lista que armazena todos os processos lidos do arquivo
+processes = [Process(line) for line in processes_input]
+
+# Inicializa tempo da simulação
+TIME = 0
+# Simulação executa até todos os processos estarem finalizados
+while not all([p.is_finished() for p in processes]):
+    print(f"\n\n\n---------------- Tempo = {TIME} ----------------\n")
+    # Loop procura pela lista de processos, buscando processos para escalonar na CPU
     for process in processes:
-        if process.init_time == current_time:
+        # Tenta escalonar processo se seu tempo de inicialização corresponde ao tempo atual
+        if process.init_time == TIME:
             address = memory.allocate(process)
             if address != -1:
                 process.start(address)
@@ -31,16 +35,16 @@ while not all([p.is_finished() for p in processes]):
                 print(f"O processo {process.pid} não conseguiu ser criado (falta de memória).")
                 process.finish()
 
-    # Chama execução do escalonador, retornando o processo que foi executado no segundo atual
-    print(qm.print())
+    # Chama execução do escalonador, retornando o processo que foi executado no tempo atual
+    print(qm.print()) # imprime filas de escalonamento para monitoramento das filas
     process = qm.run()
 
+    # Se a execução atual foi a última instrução de um processo, libera sua memória
     if process and process.is_finished():
         memory.free(process)
 
     sleep(0.5)
-    current_time += 1
-
+    TIME += 1
 
 print("\n--------------------- Operações com arquivos -----------------------\n\n")
 
@@ -55,7 +59,7 @@ for _ in range(int(files_input.readline())):
     filename, first_block, length = files_input.readline().split(", ")
     fm.insert(filename, int(length), int(first_block))
 
-# As linhas restantes são arquivos criados pelos processos
+# As linhas restantes representam arquivos criados pelos processos
 for file in files_input:
     # Manipula string para obter o array de dados
     file = file.replace("\n","").split(", ")
@@ -71,7 +75,7 @@ for file in files_input:
         length = int(file[3])
         # tenta criar no 1º espaço, segundo o algoritmo first-fit (logo, busca a partir do bloco 0)
         fm.insert(filename, length, 0, pid)
-        
+
     # operação de remover arquivo
     elif operation == 1:
         # na operação de remover, é preciso obter a prioridade do processo lido
